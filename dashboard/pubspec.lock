@@ -137,6 +137,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
+  cross_file:
+    dependency: transitive
+    description:
+      name: cross_file
+      sha256: "28bb3ae56f117b5aec029d702a90f57d285cd975c3c5c281eaca38dbc47c5937"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.5+2"
   crypto:
     dependency: transitive
     description:
@@ -429,6 +437,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.1"
+  langchain:
+    dependency: "direct main"
+    description:
+      name: langchain
+      sha256: b7035e0903953cb065734499296e66d9fa0f6e15934aa2f57389b9fb6b001aab
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.1"
+  langchain_core:
+    dependency: transitive
+    description:
+      name: langchain_core
+      sha256: fce3cd0e31dcbac80d209f6361207936a58b05506b800f13227cbe83f6e3e721
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.1"
+  langchain_openai:
+    dependency: "direct main"
+    description:
+      name: langchain_openai
+      sha256: "430d27ff3c0dc7b0180e2e4eb21a05133087a00493e3483ff9c2a85a2533a245"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.1"
+  langchain_tiktoken:
+    dependency: transitive
+    description:
+      name: langchain_tiktoken
+      sha256: c1804f4b3e56574ca67e562305d9f11e3eabe3c8aa87fea8635992f7efc66674
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   leak_tracker:
     dependency: transitive
     description:
@@ -537,10 +577,10 @@ packages:
     dependency: "direct main"
     description:
       name: openai_dart
-      sha256: "9c74e1ff38243c8987890d9fe4d03f5298352576d4db3a90402625f3f21e2164"
+      sha256: "037605a210cb3b1d8ac72b11a4ace26f25ee9267aaf981d2af1d7f0524adcbf5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0+1"
+    version: "0.6.2"
   path:
     dependency: transitive
     description:

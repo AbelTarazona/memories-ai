@@ -11,12 +11,13 @@ import 'package:memories_web_admin/data/repositories/interfaces/i_open_ai_reposi
 import 'package:memories_web_admin/data/repositories/interfaces/i_supabase_repository.dart';
 import 'package:memories_web_admin/data/repositories/open_ai_repository.dart';
 import 'package:memories_web_admin/data/repositories/supabase_repository.dart';
+import 'package:memories_web_admin/data/repositories/langchain_open_ai_repository.dart';
 import 'package:memories_web_admin/presentation/auth/bloc/auth_session_cubit.dart';
 import 'package:memories_web_admin/presentation/home/bloc/insights_bloc.dart';
 import 'package:memories_web_admin/presentation/home/bloc/network_graph_bloc.dart';
 import 'package:memories_web_admin/presentation/memories/bloc/memories_list_bloc.dart';
 import 'package:memories_web_admin/presentation/people/bloc/people_list_bloc.dart';
-import 'package:openai_dart/openai_dart.dart';
+import 'package:langchain_openai/langchain_openai.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -26,8 +27,12 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
   await _initializeSupabase();
   final supabase = Supabase.instance.client;
-  final openAiClient = OpenAIClient(
+  final chatOpenAI = ChatOpenAI(
     apiKey: dotenv.env['OPEN_AI_TOKEN']!,
+    defaultOptions: const ChatOpenAIOptions(
+      model: 'gpt-4o-mini',
+      temperature: 0.7,
+    ),
   );
 
   final supabaseRemoteService = ApiService(
@@ -40,7 +45,7 @@ Future<void> main() async {
     supabase,
   );
 
-  final openAiRepository = OpenAiRepository(openAiClient);
+  final openAiRepository = LangchainOpenAiRepository(chatOpenAI);
 
   final authSessionCubit = AuthSessionCubit(authRepository: authRepository)
     ..checkAuth();
@@ -83,7 +88,7 @@ class MyApp extends StatelessWidget {
 
   final SupabaseRepository supabaseRepository;
 
-  final OpenAiRepository openAiRepository;
+  final IOpenAIRepository openAiRepository;
 
   final AuthSessionCubit authSessionCubit;
 

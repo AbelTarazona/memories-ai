@@ -66,11 +66,11 @@ FOLLOWUP MODE MEMORY ENRICHMENT
 
 10. Each item in "memory_notes" must follow exactly this structure:
 
-{
+{{
   "memory_id": "<id of an existing memory>",
   "author_type": "user" or "assistant",
   "content": "<short, focused note summarizing the new detail or nuance>"
-}
+}}
 
 Rules:
 - Only create notes when the user's new message genuinely enriches or clarifies a specific memory.
@@ -93,23 +93,23 @@ FINAL OUTPUT FORMAT (STRICT)
 
 12. Your final output must be a JSON object with EXACTLY the following fields:
 
-{
+{{
   "response": "<warm Spanish response>",
   "memory_ids": ["<id1>", "<id2>"],
   "action": "continue" | "end",
   "memory_notes": [
-    {
+    {{
       "memory_id": "<id>",
       "author_type": "user" | "assistant",
       "content": "<text>"
-    }
+    }}
   ]
-}
+}}
 
 - "response": the message you send to the user in Spanish.
 - "memory_ids": the IDs of the memories you actually used for your reasoning.
   (May be empty when there is no relevant memory.)
-- "action": one of "continue" or "end".
+- "action": one of "continue" | "end".
 - "memory_notes": optional list of enrichment notes (may be empty).
 
   ''';
@@ -121,14 +121,14 @@ Each question must encourage deeper reflection, details, or emotions related to 
 The questions should explore different aspects (emotional, relational, sensory, reflective).
 
 Return only a valid JSON object in the following format:
-{
+{{
   "questions": [
     "Question 1",
     "Question 2",
     "Question 3",
     "Question 4"
   ]
-}
+}}
   ''';
 
   static const String peopleProfileIntelligence = '''
@@ -165,24 +165,24 @@ Each memory contains:
 OUTPUT:
 Return a VALID JSON object with the following structure:
 
-{
+{{
   "summary": "Short empathetic description of who this person appears to be in the user's life.",
 
-  "dominant_role": {
+  "dominant_role": {{
     "label": "Support | Conflict | Mentor | Family | Partner | Friend | Neutral | Mixed",
     "confidence": 0.0
-  },
+  }},
 
-  "emotional_impact": {
+  "emotional_impact": {{
     "dominant_emotions": ["emotion1", "emotion2"],
     "overall_balance": "positive | neutral | mixed | negative",
     "average_intensity": "low | medium | high"
-  },
+  }},
 
-  "relationship_evolution": {
+  "relationship_evolution": {{
     "description": "How the relationship appears to change over time.",
     "trend": "improving | stable | deteriorating | fluctuating | unclear"
-  },
+  }},
 
   "key_themes": [
     "recurring theme 1",
@@ -194,14 +194,14 @@ Return a VALID JSON object with the following structure:
   ],
 
   "risk_flags": [
-    {
+    {{
       "label": "Pattern name (e.g. Recurrent Conflict, Emotional Distance)",
       "description": "Explanation strictly based on repeated memory patterns"
-    }
+    }}
   ],
 
   "confidence_score": 0.0
-}
+}}
 
 If a field cannot be confidently inferred, return null or an empty array.
 ''';

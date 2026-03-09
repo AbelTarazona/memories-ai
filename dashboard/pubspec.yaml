@@ -31,6 +31,8 @@ dependencies:
   graphview: ^1.2.0
   shimmer_animation: ^2.2.2
   openai_dart: ^0.6.0+1
+  langchain: 0.8.1
+  langchain_openai: 0.8.1
 
 dev_dependencies:
   flutter_test:
