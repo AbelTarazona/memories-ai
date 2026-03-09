@@ -252,6 +252,29 @@ class SupabaseRepository implements ISupabaseRepository {
   }
 
   @override
+  Future<Either<Failure, List<MemorySearchModel>>> getMemoriesByIds(
+    List<String> ids,
+  ) async {
+    if (ids.isEmpty) return right([]);
+    try {
+      final response =
+          await _supabase.from('memories').select().inFilter('id', ids)
+              as List<dynamic>;
+
+      final memories = response
+          .map(
+            (m) => MemorySearchModel.fromJson(m as Map<String, dynamic>),
+          )
+          .toList();
+
+      return right(memories);
+    } catch (e) {
+      log(e.toString(), name: 'SupabaseRepository.getMemoriesByIds');
+      return left(Failure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, InsightsModel>> insights() async {
     try {
       final peopleFuture = _supabase

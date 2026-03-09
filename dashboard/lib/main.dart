@@ -45,7 +45,10 @@ Future<void> main() async {
     supabase,
   );
 
-  final openAiRepository = LangchainOpenAiRepository(chatOpenAI);
+  final openAiRepository = LangchainOpenAiRepository(
+    chatOpenAI,
+    authRepository,
+  );
 
   final authSessionCubit = AuthSessionCubit(authRepository: authRepository)
     ..checkAuth();

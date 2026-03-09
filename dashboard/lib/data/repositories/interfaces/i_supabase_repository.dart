@@ -58,6 +58,10 @@ abstract class ISupabaseRepository {
     required String query,
   });
 
+  Future<Either<Failure, List<MemorySearchModel>>> getMemoriesByIds(
+    List<String> ids,
+  );
+
   Future<Either<Failure, InsightsModel>> insights();
 
   Future<Either<Failure, GraphData>> getPeopleCooccurrenceGraph();

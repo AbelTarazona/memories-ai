@@ -28,17 +28,29 @@ class MemorySearchModel {
 
   factory MemorySearchModel.fromJson(Map<String, dynamic> json) {
     return MemorySearchModel(
-      id: json['id'] as String,
+      id: json['id'].toString(), // Safely handle int or String
       aiTitle: json['ai_title'] as String?,
       content: json['content'] as String?,
       similarity: (json['similarity'] as num?)?.toDouble() ?? 0.0,
-      feelings: (json['ai_feelings'] as List<dynamic>?)?.cast<String>(),
-      people: (json['ai_people'] as List<dynamic>?)?.cast<String>(),
-      places: (json['ai_places'] as List<dynamic>?)?.cast<String>(),
+      feelings: (json['ai_feelings'] as List<dynamic>?)
+          ?.where((e) => e != null)
+          .map((e) => e.toString())
+          .toList(),
+      people: (json['ai_people'] as List<dynamic>?)
+          ?.where((e) => e != null)
+          .map((e) => e.toString())
+          .toList(),
+      places: (json['ai_places'] as List<dynamic>?)
+          ?.where((e) => e != null)
+          .map((e) => e.toString())
+          .toList(),
       overallTone: json['ai_overall_tone'] as String?,
       temporalContext: json['ai_temporal_context'] as String?,
       highlightedQuote: json['ai_highlighted_quote'] as String?,
-      keyTopics: (json['ai_key_topics'] as List<dynamic>?)?.cast<String>(),
+      keyTopics: (json['ai_key_topics'] as List<dynamic>?)
+          ?.where((e) => e != null)
+          .map((e) => e.toString())
+          .toList(),
     );
   }
 

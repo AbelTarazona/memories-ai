@@ -43,19 +43,10 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     final bool isFollowup = state.expectsFollowup;
     final List<MemorySearchModel> activeMemories = state.activeMemories;
 
-    // ALWAYS search for memories, regardless of mode.
-    // This ensures topic changes are handled naturally.
-    final searchResponse = await _repository.searchMemories(query: query);
-    final relatedMemories = searchResponse.match(
-      (failure) => <MemorySearchModel>[],
-      (memories) => memories,
-    );
-
-    // Call LLM with BOTH active memories (current context) and related memories (fresh search)
+    // Call LLM with active memories (current context)
     final naturalResponse = await _callLLM(
       query: query,
       isFollowup: isFollowup,
-      relatedMemories: relatedMemories,
       activeMemories: activeMemories,
       updatedMessages: updatedMessages,
     );
@@ -69,11 +60,25 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       return;
     }
 
+    // Fetch any new memories the LLM decided to reference that we don't already have in activeMemories
+    List<MemorySearchModel> fetchedMemories = [];
+    final missingIds = naturalResponse.ids
+        .where((id) => !activeMemories.any((m) => m.id == id))
+        .toList();
+
+    if (missingIds.isNotEmpty) {
+      final fetchedResponse = await _repository.getMemoriesByIds(missingIds);
+      fetchedMemories = fetchedResponse.match(
+        (failure) => <MemorySearchModel>[],
+        (memories) => memories,
+      );
+    }
+
     _emitResponse(
       emit: emit,
       natural: naturalResponse,
       updatedMessages: updatedMessages,
-      relatedMemories: relatedMemories,
+      fetchedMemories: fetchedMemories,
       activeMemories: activeMemories,
       isFollowup: isFollowup,
       userQuery: query,
@@ -84,7 +89,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   Future<EmpatheticResponseModel?> _callLLM({
     required String query,
     required bool isFollowup,
-    required List<MemorySearchModel> relatedMemories,
     required List<MemorySearchModel> activeMemories,
     required List<ChatMessage> updatedMessages,
   }) async {
@@ -108,7 +112,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     final input = jsonEncode({
       "question": query,
       "mode": isFollowup ? "followup" : "new",
-      "related_memories": relatedMemories.map((m) => m.toJson()).toList(),
       "active_memories": activeMemories.map((m) => m.toJson()).toList(),
       "chat_history": history,
     });
@@ -131,13 +134,13 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     required Emitter<ConversationState> emit,
     required EmpatheticResponseModel natural,
     required List<ChatMessage> updatedMessages,
-    required List<MemorySearchModel> relatedMemories,
+    required List<MemorySearchModel> fetchedMemories,
     required List<MemorySearchModel> activeMemories,
     required bool isFollowup,
     String? userQuery,
   }) {
     // Resolve new active memories from memory_ids
-    final allCandidates = {...relatedMemories, ...activeMemories}.toList();
+    final allCandidates = {...fetchedMemories, ...activeMemories}.toList();
     final newActive = allCandidates
         .where((m) => natural.ids.contains(m.id))
         .toList();

@@ -9,43 +9,47 @@ import 'package:memories_web_admin/core/failure.dart';
 import 'package:memories_web_admin/data/models/empathetic_response_model.dart';
 import 'package:memories_web_admin/data/models/memory_model.dart';
 import 'package:memories_web_admin/data/models/person_insight_model.dart';
+import 'package:memories_web_admin/data/repositories/interfaces/i_supabase_repository.dart';
 import 'package:memories_web_admin/data/repositories/interfaces/i_open_ai_repository.dart';
+import 'package:memories_web_admin/data/repositories/tools/search_memories_tool.dart';
 
 class LangchainOpenAiRepository implements IOpenAIRepository {
   final ChatOpenAI _chatModel;
+  final ISupabaseRepository _supabaseRepository;
 
-  LangchainOpenAiRepository(this._chatModel);
+  LangchainOpenAiRepository(this._chatModel, this._supabaseRepository);
 
   @override
   Future<Either<Failure, EmpatheticResponseModel>> naturalResponse({
     required String inputJson,
   }) async {
     try {
-      final prompt = ChatPromptTemplate.fromPromptMessages([
-        SystemChatMessagePromptTemplate.fromTemplate(
+      final searchMemoriesTool = createSearchMemoriesTool(_supabaseRepository);
+
+      final agent = ToolsAgent.fromLLMAndTools(
+        llm: _chatModel,
+        tools: [searchMemoriesTool],
+        systemChatMessage: SystemChatMessagePromptTemplate.fromTemplate(
           AppPrompts.empatheticMemory,
         ),
-        HumanChatMessagePromptTemplate.fromTemplate('{inputJson}'),
-      ]);
+      );
 
-      final chain = prompt.pipe(_chatModel).pipe(const StringOutputParser());
+      final executor = AgentExecutor(agent: agent);
 
-      final res = await chain.invoke({'inputJson': inputJson});
+      final res = await executor.invoke({'input': inputJson});
+      final resContent = res['output'] as String;
 
       log(
-        'Langchain Response Content: $res',
+        'Langchain Response Content: $resContent',
         name: 'LangchainOpenAiRepository.naturalResponse',
       );
 
-      if (res.isEmpty) {
+      if (resContent.isEmpty) {
         return left(Failure('Empty response from Langchain'));
       }
 
-      // Cleanup JSON if needed (in case the model wraps it in markdown blocks)
-      final cleanRes = res
-          .replaceAll('```json', '')
-          .replaceAll('```', '')
-          .trim();
+      // Cleanup JSON if needed
+      String cleanRes = _extractJson(resContent);
 
       final map = json.decode(cleanRes) as Map<String, dynamic>;
       final response = EmpatheticResponseModel.fromJson(map);
@@ -96,10 +100,8 @@ class LangchainOpenAiRepository implements IOpenAIRepository {
         return left(Failure('Empty response from Langchain'));
       }
 
-      final cleanRes = res
-          .replaceAll('```json', '')
-          .replaceAll('```', '')
-          .trim();
+      String cleanRes = _extractJson(res);
+
       final map = json.decode(cleanRes) as Map<String, dynamic>;
       final response = List<String>.from(map['questions'] ?? []);
 
@@ -158,10 +160,8 @@ class LangchainOpenAiRepository implements IOpenAIRepository {
         return left(Failure('Empty response from Langchain'));
       }
 
-      final cleanRes = res
-          .replaceAll('```json', '')
-          .replaceAll('```', '')
-          .trim();
+      String cleanRes = _extractJson(res);
+
       final map = json.decode(cleanRes) as Map<String, dynamic>;
 
       final insight = PersonInsightModel.fromJson({
@@ -182,5 +182,43 @@ class LangchainOpenAiRepository implements IOpenAIRepository {
       );
       return left(Failure(e.toString()));
     }
+  }
+
+  /// Extracts a valid JSON object by finding the first '{' and matching '}',
+  /// ignoring any text outside. It safely ignores braces inside strings.
+  String _extractJson(String text) {
+    final startIndex = text.indexOf('{');
+    if (startIndex == -1) return text;
+
+    int braceCount = 0;
+    bool inString = false;
+    bool isEscaped = false;
+
+    for (int i = startIndex; i < text.length; i++) {
+      final char = text[i];
+
+      if (inString) {
+        if (char == '\\' && !isEscaped) {
+          isEscaped = true;
+        } else {
+          if (char == '"' && !isEscaped) {
+            inString = false;
+          }
+          isEscaped = false;
+        }
+      } else {
+        if (char == '"') {
+          inString = true;
+        } else if (char == '{') {
+          braceCount++;
+        } else if (char == '}') {
+          braceCount--;
+          if (braceCount == 0) {
+            return text.substring(startIndex, i + 1);
+          }
+        }
+      }
+    }
+    return text.trim();
   }
 }
