@@ -1,6 +1,5 @@
 # Memories AI 🧠
 
-![Screenshot 1](assets/Gemini_Generated_Image_asb5k8asb5k8asb5.png)
 ![Screenshot 2](assets/Gemini_Generated_Image_ycrbo8ycrbo8ycrb.png)
 
 Memories AI is an intelligent platform built with Flutter that allows users to record, capture, and analyze their memories using the power of AI (OpenAI) and a robust backend (Supabase). This repository contains two main applications: the mobile app for users, and a web dashboard for administration and insights.
@@ -73,6 +72,8 @@ The `dashboard` directory contains the web-based administration panel built with
 - **AI Integration:** [OpenAI](https://openai.com/) (GPT and Whisper for analysis and transcription)
 - **State Management:** BLoC / Cubit architecture.
 - **Routing:** GoRouter
+
+![Screenshot 1](assets/Gemini_Generated_Image_asb5k8asb5k8asb5.png)
 
 ## 📄 License
 This project is open-source but **non-commercial**. You are free to view, learn from, and modify the code for personal or educational purposes, but you may not use it for commercial gains or monetize it in any form without explicit permission.
