@@ -10,7 +10,7 @@ Memories AI is an intelligent platform built with Flutter that allows users to r
 
 ## 📱 App
 
-The `app` directory contains the mobile application (Android/iOS). It allows users to:
+The `app` directory contains the web application. It allows users to:
 - **Record Memories:** Capture voice recordings to save personal memories.
 - **Analyze Memories:** Use AI to transcribe and extract context, people, and insights from recorded memories.
 - **Memories & People List:** View a timeline of past memories and a list of identified people within those memories.
